@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy toàn bộ mã nguồn app vào container
 COPY . .
 
+ENV PYTHONPATH=/app
+
 # Expose cổng server (ví dụ 8000 cho FastAPI)
 EXPOSE 8000
 
