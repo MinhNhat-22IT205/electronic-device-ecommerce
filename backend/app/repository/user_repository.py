@@ -18,3 +18,6 @@ def create_user(db: Session, user: RegisterRequest):
     db.commit()
     db.refresh(new_user)
     return new_user
+
+def get_user_by_id(db: Session, id:str):
+    return db.get(User, id)
