@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exclusive - Product Store</title>
+    <link rel="stylesheet" href="product-list.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">Exclusive</div>
+            <nav class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Shop</a>
+                <a href="#">Contact</a>
+            </nav>
+            <div class="header-actions">
+                <div class="search-bar">
+                    <input type="text" placeholder="What are you looking for?" id="searchInput">
+                    <button onclick="searchProducts()">🔍</button>
+                </div>
+                <div class="cart-icon">
+                    🛒
+                    <span class="cart-count" id="cartCount">0</span>
+                </div>
+                <div class="cart-icon">3</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="filter-header">
+                <span>Filter</span>
+            </div>
+            <div class="categories">
+                <h3>Categories</h3>
+                <ul class="category-list">
+                    <li class="active" onclick="filterByCategory('all')">All Products</li>
+                    <li onclick="filterByCategory('Samsung')">Samsung</li>
+                    <li onclick="filterByCategory('iPhone')">iPhone</li>
+                    <li onclick="filterByCategory('Galaxy')">Galaxy</li>
+                    <li onclick="filterByCategory('MacBook')">MacBook</li>
+                    <li onclick="filterByCategory('Gaming')">Gaming</li>
+                    <li onclick="filterByCategory('Accessories')">Accessories</li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="content">
+            <div class="product-header">
+                <h1 class="product-title">Products</h1>
+                <div class="sort-dropdown">
+                    <button class="sort-btn" onclick="toggleSortDropdown()">
+                        Sort by <span id="currentSort">Newest</span> ▼
+                    </button>
+                    <div class="sort-options" id="sortOptions">
+                        <div class="sort-option" onclick="sortProducts('newest')">Newest</div>
+                        <div class="sort-option" onclick="sortProducts('price-low')">High to Low (Price)</div>
+                        <div class="sort-option" onclick="sortProducts('price-high')">Low to High (Price)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded here -->
+            </div>
+
+            <div class="pagination">
+                <div class="page-btn active">1</div>
+                <div class="page-btn">2</div>
+                <div class="page-btn">3</div>
+                <div class="dots">...</div>
+                <div class="page-btn">6</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Dummy JSON data for products
+        const productsData = [
+            {
+                id: 1,
+                name: "HAVIT HV-G92 Gamepad",
+                category: "Gaming",
+                originalPrice: 160,
+                currentPrice: 120,
+                discount: 40,
+                rating: 4.5,
+                reviewCount: 88,
+                image: "https://via.placeholder.com/200x150/ff6b6b/ffffff?text=Gamepad",
+                inStock: true
+            },
+            {
+                id: 2,
+                name: "AK-900 Wired Keyboard",
+                category: "Accessories",
+                originalPrice: 1160,
+                currentPrice: 960,
+                discount: 35,
+                rating: 4,
+                reviewCount: 75,
+                image: "https://via.placeholder.com/200x150/4ecdc4/ffffff?text=Keyboard",
+                inStock: true
+            },
+            {
+                id: 3,
+                name: "IPS LCD Gaming Monitor",
+                category: "Gaming",
+                originalPrice: 400,
+                currentPrice: 370,
+                discount: 30,
+                rating: 5,
+                reviewCount: 99,
+                image: "https://via.placeholder.com/200x150/45b7d1/ffffff?text=Monitor",
+                inStock: true
+            },
+            {
+                id: 4,
+                name: "Samsung Galaxy S24",
+                category: "Samsung",
+                originalPrice: 1200,
+                currentPrice: 999,
+                discount: 25,
+                rating: 4.8,
+                reviewCount: 156,
+                image: "https://via.placeholder.com/200x150/96ceb4/ffffff?text=Galaxy+S24",
+                inStock: true
+            },
+            {
+                id: 5,
+                name: "iPhone 15 Pro",
+                category: "iPhone",
+                originalPrice: 1299,
+                currentPrice: 1199,
+                discount: 15,
+                rating: 4.9,
+                reviewCount: 203,
+                image: "https://via.placeholder.com/200x150/ffeaa7/ffffff?text=iPhone+15",
+                inStock: true
+            },
+            {
+                id: 6,
+                name: "MacBook Air M3",
+                category: "MacBook",
+                originalPrice: 1499,
+                currentPrice: 1299,
+                discount: 20,
+                rating: 4.7,
+                reviewCount: 89,
+                image: "https://via.placeholder.com/200x150/dda0dd/ffffff?text=MacBook",
+                inStock: true
+            },
+            {
+                id: 7,
+                name: "Gaming Wireless Mouse",
+                category: "Gaming",
+                originalPrice: 80,
+                currentPrice: 65,
+                discount: 25,
+                rating: 4.3,
+                reviewCount: 67,
+                image: "https://via.placeholder.com/200x150/ff7675/ffffff?text=Mouse",
+                inStock: true
+            },
+            {
+                id: 8,
+                name: "Galaxy Book Pro",
+                category: "Galaxy",
+                originalPrice: 1100,
+                currentPrice: 899,
+                discount: 30,
+                rating: 4.4,
+                reviewCount: 45,
+                image: "https://via.placeholder.com/200x150/74b9ff/ffffff?text=Galaxy+Book",
+                inStock: true
+            },
+            {
+                id: 9,
+                name: "Wireless Earbuds Pro",
+                category: "Accessories",
+                originalPrice: 250,
+                currentPrice: 199,
+                discount: 20,
+                rating: 4.6,
+                reviewCount: 134,
+                image: "https://via.placeholder.com/200x150/fd79a8/ffffff?text=Earbuds",
+                inStock: true
+            }
+        ];
+
+        let currentProducts = [...productsData];
+        let cartItems = 0;
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="discount-badge">-${product.discount}%</div>
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}">
+                        
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <div class="product-price">
+                            <span class="current-price">$${product.currentPrice}</span>
+                            <span class="original-price">$${product.originalPrice}</span>
+                        </div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                ${generateStars(product.rating)}
+                            </div>
+                            <span class="rating-count">(${product.reviewCount})</span>
+                        </div>
+                        <button class="add-to-cart" onclick="addToCart(${product.id})">Add To Cart</button>
+                    </div>
+                `;
+                grid.appendChild(productCard);
+            });
+        }
+
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+            let starsHTML = '';
+            for (let i = 0; i < fullStars; i++) {
+                starsHTML += '<div class="star"></div>';
+            }
+            if (hasHalfStar) {
+                starsHTML += '<div class="star"></div>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                starsHTML += '<div class="star empty"></div>';
+            }
+            return starsHTML;
+        }
+
+        function filterByCategory(category) {
+            // Update active category
+            document.querySelectorAll('.category-list li').forEach(li => li.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (category === 'all') {
+                currentProducts = [...productsData];
+            } else {
+                currentProducts = productsData.filter(product => product.category === category);
+            }
+            renderProducts(currentProducts);
+        }
+
+        function toggleSortDropdown() {
+            const dropdown = document.getElementById('sortOptions');
+            dropdown.classList.toggle('show');
+        }
+
+        function sortProducts(sortType) {
+            const dropdown = document.getElementById('sortOptions');
+            const currentSortSpan = document.getElementById('currentSort');
+            
+            dropdown.classList.remove('show');
+
+            switch(sortType) {
+                case 'newest':
+                    currentSortSpan.textContent = 'Newest';
+                    // Keep original order
+                    break;
+                case 'price-low':
+                    currentSortSpan.textContent = 'High to Low (Price)';
+                    currentProducts.sort((a, b) => b.currentPrice - a.currentPrice);
+                    break;
+                case 'price-high':
+                    currentSortSpan.textContent = 'Low to High (Price)';
+                    currentProducts.sort((a, b) => a.currentPrice - b.currentPrice);
+                    break;
+            }
+            renderProducts(currentProducts);
+        }
+
+        function searchProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm === '') {
+                currentProducts = [...productsData];
+            } else {
+                currentProducts = productsData.filter(product => 
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.category.toLowerCase().includes(searchTerm)
+                );
+            }
+            renderProducts(currentProducts);
+        }
+
+        function addToCart(productId) {
+            cartItems++;
+            document.getElementById('cartCount').textContent = cartItems;
+            
+            // Add some visual feedback
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Added!';
+            button.style.background = '#27ae60';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = '#333';
+            }, 1000);
+        }
+
+        function toggleWishlist(productId) {
+            const button = event.target;
+            button.textContent = button.textContent === '♡' ? '❤️' : '♡';
+        }
+
+        function quickView(productId) {
+            const product = productsData.find(p => p.id === productId);
+            alert(`Quick View: ${product.name}\nPrice: $${product.currentPrice}\nRating: ${product.rating}/5`);
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('sortOptions');
+            const sortBtn = document.querySelector('.sort-btn');
+            
+            if (!dropdown.contains(event.target) && !sortBtn.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Allow Enter key for search
+        document.getElementById('searchInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                searchProducts();
+            }
+        });
+
+        // Initialize page
+        renderProducts(currentProducts);
+    </script>
+</body>
+</html>
