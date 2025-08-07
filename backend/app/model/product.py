@@ -1,5 +1,5 @@
 from sqlalchemy import Column, BigInteger, String, Integer, Boolean, Double, Text, ForeignKey, DateTime
-from app.config.db_connect import Base
+from app.db.db_connect import Base
 from sqlalchemy.orm import relationship
 
 class Product(Base):
@@ -30,29 +30,4 @@ class Product(Base):
 
     images = relationship("ProductImage", back_populates="product")
 
-class ProductImage(Base):
-    __tablename__ = "product_image"
 
-    id = Column("product_image_id", BigInteger, primary_key=True)
-    path = Column("product_image_path", String(255))
-    sort_order = Column(Integer)
-
-    product_id = Column(BigInteger, ForeignKey("product.product_id"))
-    color_id = Column(BigInteger, ForeignKey("color.color_id"))
-
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
-
-    product = relationship("Product", back_populates="images")
-    color = relationship("Color", back_populates="images")
-
-class Color(Base):
-    __tablename__ = "color"
-
-    id = Column("color_id", BigInteger, primary_key=True)
-    name = Column("color_name", String(100))
-
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
-
-    images = relationship("ProductImage", back_populates="color")

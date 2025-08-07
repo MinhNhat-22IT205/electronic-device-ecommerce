@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from app.config.db_connect import SessionLocal, Base, engine
+from app.db.db_connect import SessionLocal, Base, engine
 from app.model.user import User
-from app.model.product import Product, Color, ProductImage
+from app.model import Product, Color, ProductImage
 from app.util.security import hash_password
 from datetime import datetime
 

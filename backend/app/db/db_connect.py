@@ -1,8 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from app.config.env_config import env
 
-DATABASE_URL = "mysql+pymysql://my_user:my_password@mysql:3306/my_database"
-
-engine = create_engine(DATABASE_URL)
+engine = create_engine(env.DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 Base = declarative_base()
