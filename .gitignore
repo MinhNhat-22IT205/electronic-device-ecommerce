@@ -1,0 +1,43 @@
+
+---
+
+```gitignore
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pydantic V2 cache
+.pydantic/
+
+# Virtual environment
+venv/
+env/
+**/.env
+.env
+
+# VS Code settings
+.vscode/
+
+# Alembic generated DB versions
+alembic/versions/__pycache__/
+
+# Pytest / coverage
+*.log
+coverage/
+*.cover
+.cache/
+.tox/
+.pytest_cache/
+
+# MySQL Docker volume
+mysql_data/
+minio_data/
+
+# Python specific
+*.egg-info/
+dist/
+build/
+
+# Docker
+*.pid

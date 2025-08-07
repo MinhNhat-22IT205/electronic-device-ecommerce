@@ -8,14 +8,13 @@ services:
     container_name: python-backend
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
     depends_on:
       - mysql
       - minio
-    environment:
-      - DATABASE_URL=mysql://my_user:my_password@mysql:3306/my_database
-      - MINIO_ENDPOINT=minio:9000
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
+    env_file:
+      - ./backend/.env
 
   nginx:
     image: nginx:stable
@@ -32,11 +31,8 @@ services:
     image: mysql:8.0
     container_name: mysql-db
     restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: my_database
-      MYSQL_USER: my_user
-      MYSQL_PASSWORD: my_password
+    env_file:
+      - ./backend/.env
     ports:
       - "3306:3306"
     volumes:
@@ -45,9 +41,8 @@ services:
   minio:
     image: minio/minio
     container_name: minio
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+    env_file:
+      - ./backend/.env
     command: server /data --console-address ":9001"
     ports:
       - "9000:9000"

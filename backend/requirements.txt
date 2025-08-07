@@ -3,3 +3,8 @@ uvicorn[standard]
 sqlalchemy
 minio
 pymysql
+alembic 
+pydantic[email]
+python-jose[cryptography]
+passlib[bcrypt]
+pydantic-settings
