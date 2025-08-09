@@ -1,0 +1,130 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  background-color: #fff;
+  color: #000;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  border-bottom: 1px solid #eee;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #000;
+  font-weight: 500;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+}
+
+.search-bar button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-left: none;
+  background-color: #eee;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+.container {
+  display: flex;
+  padding: 60px 50px;
+  min-height: 80vh;
+}
+
+.left-panel {
+  flex: 1;
+  padding-right: 50px;
+}
+
+.left-panel h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.left-panel p {
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.left-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.left-panel input {
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+}
+
+.create-btn {
+  padding: 12px;
+  background-color: #C7352E;
+  color: white;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.right-panel {
+  flex: 1;
+  background-color: #d3d3d3;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay {
+  position: absolute;
+  text-align: center;
+}
+
+.overlay h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.login-btn {
+  background-color: #C7352E;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 4px;
+}
