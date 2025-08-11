@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
-from app.db.db_connect import SessionLocal, Base, engine
-from app.model.user import User
-from app.model import Product, Color, ProductImage
-from app.util.security import hash_password
+from backend.app.db.db_connect import SessionLocal, Base, engine
+# from backend.app.model.user import User
+from backend.app.model import Product, Color, ProductImage
+from backend.app.util.security import hash_password
 from datetime import datetime
 
 # 1. Create tables if not exist
@@ -12,33 +12,33 @@ Base.metadata.create_all(bind=engine)
 db: Session = SessionLocal()
 
 # 3. Seed admin + customer if not exists
-def seed_users():
-    if not db.query(User).filter(User.email == "admin@example.com").first():
-        admin = User(
-            email="admin@example.com",
-            password=hash_password("admin123"),
-            role="admin",
-            first_name="Super",
-            last_name="Admin",
-            is_verified=True,
-            registered_at=datetime.utcnow()
-        )
-        db.add(admin)
-
-    if not db.query(User).filter(User.email == "customer@example.com").first():
-        customer = User(
-            email="customer@example.com",
-            password=hash_password("customer123"),
-            role="customer",
-            first_name="Minh",
-            last_name="Nhật",
-            is_verified=True,
-            registered_at=datetime.utcnow()
-        )
-        db.add(customer)
-
-    db.commit()
-    print("✅ Users seeded")
+# def seed_users():
+#     if not db.query(User).filter(User.email == "admin@example.com").first():
+#         admin = User(
+#             email="admin@example.com",
+#             password=hash_password("admin123"),
+#             role="admin",
+#             first_name="Super",
+#             last_name="Admin",
+#             is_verified=True,
+#             registered_at=datetime.utcnow()
+#         )
+#         db.add(admin)
+#
+#     if not db.query(User).filter(User.email == "customer@example.com").first():
+#         customer = User(
+#             email="customer@example.com",
+#             password=hash_password("customer123"),
+#             role="customer",
+#             first_name="Minh",
+#             last_name="Nhật",
+#             is_verified=True,
+#             registered_at=datetime.utcnow()
+#         )
+#         db.add(customer)
+#
+#     db.commit()
+#     print("✅ Users seeded")
 
 # 4. Seed sample products
 def seed_products():
@@ -95,7 +95,7 @@ def seed_product_images():
     print("✅ Product images seeded")
 
 # Final seeding order
-seed_users()
+# seed_users()
 seed_colors()
 seed_products()
 seed_product_images()

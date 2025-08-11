@@ -23,8 +23,8 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Import your models to register them with SQLAlchemy
-from app.db.db_connect import Base
-from app.model import user, product, product_image, color  # Add all model files here
+from backend.app.db.db_connect import Base
+from backend.app.model import  product, product_image, color  # Add all model files here
 
 # Set the metadata for 'autogenerate' support
 target_metadata = Base.metadata

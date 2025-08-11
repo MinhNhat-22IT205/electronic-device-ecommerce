@@ -1,8 +1,8 @@
-from app.db.db_connect import SessionLocal
+from backend.app.db.db_connect import SessionLocal
 
 def get_db():
-    db = SessionLocal()
+    mysql = SessionLocal()
     try:
-        yield db
+        yield mysql
     finally:
-        db.close()
+        mysql.close()

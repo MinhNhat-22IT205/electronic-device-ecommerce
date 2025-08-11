@@ -1,14 +1,18 @@
-from sqlalchemy import Column, BigInteger, String, Integer, Boolean, Double, Text, ForeignKey, DateTime
-from app.db.db_connect import Base
-from sqlalchemy.orm import relationship
-
+from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, Integer, Float, ForeignKey, Text
+from sqlalchemy.sql import func
+from backend.app.db.db_connect import Base
 class Color(Base):
+    """
+    Represents a color option for products.
+    Tracks color details and audit information.
+    """
     __tablename__ = "color"
 
-    id = Column("color_id", BigInteger, primary_key=True)
-    name = Column("color_name", String(100))
-
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
-
-    images = relationship("ProductImage", back_populates="color")
+    color_id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
+    color_name = Column(String(255), nullable=False, index=True)
+    created_by = Column(BigInteger)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_by = Column(BigInteger)
+    updated_at = Column(DateTime, onupdate=func.now())
+    deleted_by = Column(BigInteger)
+    deleted_at = Column(DateTime)
