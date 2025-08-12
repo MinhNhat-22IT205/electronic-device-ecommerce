@@ -1,6 +1,7 @@
 
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, Field
+from typing import List, Optional, Literal
+
 
 class ImageColor(BaseModel):
     id:int
@@ -11,7 +12,7 @@ class ImageColor(BaseModel):
 
 class ProductImageResponse(BaseModel):
     path: str
-    color:ImageColor
+    # color:ImageColor
 
     class Config:
         orm_mode = True
@@ -37,6 +38,72 @@ class ProductResponse(BaseModel):
     is_activated: bool
     is_deleted: Optional[bool]
     images: List[ProductImageResponse]
+
+    class Config:
+        orm_mode = True
+
+class ProductQueryParams(BaseModel):
+    page: int = Field(1, ge=1)
+    limit: int = Field(10, ge=1, le=100)
+    sort: Optional[Literal["newest", "price_low", "price_high"]] = None
+    search: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class PaginationResponse(BaseModel):
+    page: int
+    limit: int
+    total: int
+    pages: int
+
+    class Config:
+        orm_mode = True
+
+class ProductListResponse(BaseModel):
+    data: List[ProductResponse]
+    pagination: PaginationResponse
+
+    class Config:
+        orm_mode = True
+
+class ProductCreateRequest(BaseModel):
+    name: str
+    sku: str
+    description: Optional[str]
+    camera: Optional[str]
+    cpu: Optional[str]
+    ram: Optional[int]
+    rom: Optional[int]
+    pin: Optional[int]
+    cost_price: float
+    sale_price: float
+    quantity: int
+    weight: Optional[float]
+    width: Optional[float]
+    height: Optional[float]
+    thick: Optional[float]
+
+    class Config:
+        orm_mode = True
+
+class ProductCreateResponse(BaseModel):
+    id: int
+    name: str
+    sku: str
+    description: Optional[str]
+    camera: Optional[str]
+    cpu: Optional[str]
+    ram: Optional[int]
+    rom: Optional[int]
+    pin: Optional[int]
+    cost_price: float
+    sale_price: float
+    quantity: int
+    weight: Optional[float]
+    width: Optional[float]
+    height: Optional[float]
+    thick: Optional[float]
 
     class Config:
         orm_mode = True

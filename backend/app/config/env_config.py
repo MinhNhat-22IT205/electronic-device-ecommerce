@@ -18,6 +18,7 @@ class Config(BaseSettings):
     MINIO_SECRET_KEY: str
     MINIO_ROOT_USER: str
     MINIO_ROOT_PASSWORD: str
+    BUCKET_PRODUCT: str
 
     class Config:
         env_file = ".env"

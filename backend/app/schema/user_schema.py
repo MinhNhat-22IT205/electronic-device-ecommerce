@@ -8,12 +8,17 @@ class LoginRequest(BaseModel):
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
-    first_name: Optional[str]
-    last_name: Optional[str]
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    role:str
 
 class UserResponse(BaseModel):
     id: int

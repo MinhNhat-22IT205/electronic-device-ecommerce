@@ -394,6 +394,39 @@ padding: 0 10px;
 color: #999;
 }
 
+.product-image {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.img-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.4);
+    border: none;
+    color: white;
+    font-size: 20px;
+    padding: 8px;
+    cursor: pointer;
+    z-index: 5;
+}
+
+.img-nav.prev { left: 5px; }
+.img-nav.next { right: 5px; }
+
+.img-nav:hover {
+    background: rgba(0,0,0,0.7);
+}
+
 @media (max-width: 768px) {
 .main-container {
     flex-direction: column;

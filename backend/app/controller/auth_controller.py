@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, Response, Request, HTTPException
 from sqlalchemy.orm import Session
 from app.util.jwt import create_access_token, create_refresh_token, decode_token
-from app.schema.user_schema import LoginRequest, TokenResponse, UserResponse, RegisterRequest
+from app.schema.user_schema import LoginRequest, TokenResponse, UserResponse, RegisterRequest, LoginResponse
 from app.db.db_session import get_db
 from app.service.auth_service import authenticate_user, register_user, validate_and_decode_refresh_token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=LoginResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db), response: Response = None):
-    access_token, refresh_token, _ = authenticate_user(db, data.email, data.password)
+    access_token, refresh_token, user = authenticate_user(db, data.email, data.password)
 
     # Set refresh token in HttpOnly cookie
     response.set_cookie(
@@ -20,7 +20,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db), response: Response 
         secure=False       
     )
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "role": user.role}
 
 @router.post("/register", response_model=UserResponse)
 def register(data: RegisterRequest, db: Session = Depends(get_db)):

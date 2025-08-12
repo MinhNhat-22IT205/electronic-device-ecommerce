@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exclusive - Product Store</title>
     <link rel="stylesheet" href="product-list.css">
 </head>
+
 <body>
     <header class="header">
         <div class="nav-container">
@@ -57,8 +59,8 @@
                     </button>
                     <div class="sort-options" id="sortOptions">
                         <div class="sort-option" onclick="sortProducts('newest')">Newest</div>
-                        <div class="sort-option" onclick="sortProducts('price-low')">High to Low (Price)</div>
-                        <div class="sort-option" onclick="sortProducts('price-high')">Low to High (Price)</div>
+                        <div class="sort-option" onclick="sortProducts('price_low')">High to Low (Price)</div>
+                        <div class="sort-option" onclick="sortProducts('price_high')">Low to High (Price)</div>
                     </div>
                 </div>
             </div>
@@ -67,144 +69,88 @@
                 <!-- Products will be loaded here -->
             </div>
 
-            <div class="pagination">
-                <div class="page-btn active">1</div>
-                <div class="page-btn">2</div>
-                <div class="page-btn">3</div>
-                <div class="dots">...</div>
-                <div class="page-btn">6</div>
-            </div>
+            <div class="pagination" id="paginationContainer"></div>
         </main>
     </div>
 
     <script>
-        // Dummy JSON data for products
-        const productsData = [
-            {
-                id: 1,
-                name: "HAVIT HV-G92 Gamepad",
-                category: "Gaming",
-                originalPrice: 160,
-                currentPrice: 120,
-                discount: 40,
-                rating: 4.5,
-                reviewCount: 88,
-                image: "https://via.placeholder.com/200x150/ff6b6b/ffffff?text=Gamepad",
-                inStock: true
-            },
-            {
-                id: 2,
-                name: "AK-900 Wired Keyboard",
-                category: "Accessories",
-                originalPrice: 1160,
-                currentPrice: 960,
-                discount: 35,
-                rating: 4,
-                reviewCount: 75,
-                image: "https://via.placeholder.com/200x150/4ecdc4/ffffff?text=Keyboard",
-                inStock: true
-            },
-            {
-                id: 3,
-                name: "IPS LCD Gaming Monitor",
-                category: "Gaming",
-                originalPrice: 400,
-                currentPrice: 370,
-                discount: 30,
-                rating: 5,
-                reviewCount: 99,
-                image: "https://via.placeholder.com/200x150/45b7d1/ffffff?text=Monitor",
-                inStock: true
-            },
-            {
-                id: 4,
-                name: "Samsung Galaxy S24",
-                category: "Samsung",
-                originalPrice: 1200,
-                currentPrice: 999,
-                discount: 25,
-                rating: 4.8,
-                reviewCount: 156,
-                image: "https://via.placeholder.com/200x150/96ceb4/ffffff?text=Galaxy+S24",
-                inStock: true
-            },
-            {
-                id: 5,
-                name: "iPhone 15 Pro",
-                category: "iPhone",
-                originalPrice: 1299,
-                currentPrice: 1199,
-                discount: 15,
-                rating: 4.9,
-                reviewCount: 203,
-                image: "https://via.placeholder.com/200x150/ffeaa7/ffffff?text=iPhone+15",
-                inStock: true
-            },
-            {
-                id: 6,
-                name: "MacBook Air M3",
-                category: "MacBook",
-                originalPrice: 1499,
-                currentPrice: 1299,
-                discount: 20,
-                rating: 4.7,
-                reviewCount: 89,
-                image: "https://via.placeholder.com/200x150/dda0dd/ffffff?text=MacBook",
-                inStock: true
-            },
-            {
-                id: 7,
-                name: "Gaming Wireless Mouse",
-                category: "Gaming",
-                originalPrice: 80,
-                currentPrice: 65,
-                discount: 25,
-                rating: 4.3,
-                reviewCount: 67,
-                image: "https://via.placeholder.com/200x150/ff7675/ffffff?text=Mouse",
-                inStock: true
-            },
-            {
-                id: 8,
-                name: "Galaxy Book Pro",
-                category: "Galaxy",
-                originalPrice: 1100,
-                currentPrice: 899,
-                discount: 30,
-                rating: 4.4,
-                reviewCount: 45,
-                image: "https://via.placeholder.com/200x150/74b9ff/ffffff?text=Galaxy+Book",
-                inStock: true
-            },
-            {
-                id: 9,
-                name: "Wireless Earbuds Pro",
-                category: "Accessories",
-                originalPrice: 250,
-                currentPrice: 199,
-                discount: 20,
-                rating: 4.6,
-                reviewCount: 134,
-                image: "https://via.placeholder.com/200x150/fd79a8/ffffff?text=Earbuds",
-                inStock: true
-            }
-        ];
-
-        let currentProducts = [...productsData];
+        let productsData = [];
+        let currentProducts = [];
         let cartItems = 0;
+
+        // State for query params
+        let currentPage = 1;
+        let limit = 10;
+        let currentCategory = "";
+        let currentSort = "newest"; // newest, price-low, price-high
+        let currentSearch = "";
+
+        async function fetchProducts() {
+            try {
+                const url = new URL("http://localhost:8000/api/products");
+                url.searchParams.append("page", currentPage);
+                url.searchParams.append("limit", limit);
+                if (currentSort) {
+                    url.searchParams.append("sort", currentSort);
+                }
+                if (currentSearch) {
+                    url.searchParams.append("search", currentSearch);
+                }
+
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("Failed to fetch products");
+
+                const data = await res.json();
+                productsData = data.data.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    currentPrice: p.sale_price,
+                    originalPrice: p.cost_price,
+                    images: p.images?.map(img => img.path) ?? ["placeholder.jpg"],
+                    discount: Math.round(((p.cost_price - p.sale_price) / p.cost_price) * 100)
+                }));
+
+                currentProducts = [...productsData];
+                renderProducts(currentProducts);
+                renderPagination(data.pagination);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Image carousel state
+        let productImageState = {};
+
+        function nextImage(productId) {
+            let state = productImageState[productId];
+            if (!state) return;
+            state.currentIndex = (state.currentIndex + 1) % state.images.length;
+            document.getElementById(`product-img-${productId}`).src = state.images[state.currentIndex];
+        }
+
+        function prevImage(productId) {
+            let state = productImageState[productId];
+            if (!state) return;
+            state.currentIndex = (state.currentIndex - 1 + state.images.length) % state.images.length;
+            document.getElementById(`product-img-${productId}`).src = state.images[state.currentIndex];
+        }
 
         function renderProducts(products) {
             const grid = document.getElementById('productsGrid');
             grid.innerHTML = '';
 
             products.forEach(product => {
+                let images = product.images;
+                const productId = product.id;
+
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 productCard.innerHTML = `
                     <div class="discount-badge">-${product.discount}%</div>
                     <div class="product-image">
-                        <img src="${product.image}" alt="${product.name}">
-                        
+                        <button class="img-nav prev" onclick="prevImage(${productId})">❮</button>
+                        <img id="product-img-${productId}" src="${images[0]}" alt="${product.name}">
+                        <button class="img-nav next" onclick="nextImage(${productId})">❯</button>
                     </div>
                     <div class="product-info">
                         <h3 class="product-name">${product.name}</h3>
@@ -212,136 +158,84 @@
                             <span class="current-price">$${product.currentPrice}</span>
                             <span class="original-price">$${product.originalPrice}</span>
                         </div>
-                        <div class="product-rating">
-                            <div class="stars">
-                                ${generateStars(product.rating)}
-                            </div>
-                            <span class="rating-count">(${product.reviewCount})</span>
-                        </div>
                         <button class="add-to-cart" onclick="addToCart(${product.id})">Add To Cart</button>
                     </div>
                 `;
+
+                productImageState[productId] = { images, currentIndex: 0 };
+
                 grid.appendChild(productCard);
             });
         }
 
-        function generateStars(rating) {
-            const fullStars = Math.floor(rating);
-            const hasHalfStar = rating % 1 !== 0;
-            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
-            let starsHTML = '';
-            for (let i = 0; i < fullStars; i++) {
-                starsHTML += '<div class="star"></div>';
-            }
-            if (hasHalfStar) {
-                starsHTML += '<div class="star"></div>';
-            }
-            for (let i = 0; i < emptyStars; i++) {
-                starsHTML += '<div class="star empty"></div>';
-            }
-            return starsHTML;
-        }
-
         function filterByCategory(category) {
-            // Update active category
             document.querySelectorAll('.category-list li').forEach(li => li.classList.remove('active'));
             event.target.classList.add('active');
-
-            if (category === 'all') {
-                currentProducts = [...productsData];
-            } else {
-                currentProducts = productsData.filter(product => product.category === category);
-            }
-            renderProducts(currentProducts);
+            currentCategory = category;
+            currentPage = 1;
+            fetchProducts();
         }
 
         function toggleSortDropdown() {
-            const dropdown = document.getElementById('sortOptions');
-            dropdown.classList.toggle('show');
+            document.getElementById('sortOptions').classList.toggle('show');
         }
 
-        function sortProducts(sortType) {
-            const dropdown = document.getElementById('sortOptions');
-            const currentSortSpan = document.getElementById('currentSort');
-            
-            dropdown.classList.remove('show');
-
-            switch(sortType) {
-                case 'newest':
-                    currentSortSpan.textContent = 'Newest';
-                    // Keep original order
-                    break;
-                case 'price-low':
-                    currentSortSpan.textContent = 'High to Low (Price)';
-                    currentProducts.sort((a, b) => b.currentPrice - a.currentPrice);
-                    break;
-                case 'price-high':
-                    currentSortSpan.textContent = 'Low to High (Price)';
-                    currentProducts.sort((a, b) => a.currentPrice - b.currentPrice);
-                    break;
+        function sortProducts(type) {
+            currentSort = type;
+            const sortLabel = document.getElementById('currentSort');
+            if (type === 'newest') {
+                sortLabel.textContent = 'Newest';
+            } else if (type === 'price-low') {
+                sortLabel.textContent = 'High to Low (Price)';
+            } else if (type === 'price-high') {
+                sortLabel.textContent = 'Low to High (Price)';
             }
-            renderProducts(currentProducts);
+            fetchProducts();
         }
 
         function searchProducts() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            if (searchTerm === '') {
-                currentProducts = [...productsData];
-            } else {
-                currentProducts = productsData.filter(product => 
-                    product.name.toLowerCase().includes(searchTerm) ||
-                    product.category.toLowerCase().includes(searchTerm)
-                );
-            }
-            renderProducts(currentProducts);
+            currentSearch = document.getElementById('searchInput').value.trim();
+            currentPage = 1;
+            fetchProducts();
         }
 
         function addToCart(productId) {
             cartItems++;
             document.getElementById('cartCount').textContent = cartItems;
-            
-            // Add some visual feedback
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = 'Added!';
-            button.style.background = '#27ae60';
-            
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.style.background = '#333';
-            }, 1000);
         }
 
-        function toggleWishlist(productId) {
-            const button = event.target;
-            button.textContent = button.textContent === '♡' ? '❤️' : '♡';
+        function renderPagination(pagination) {
+            const container = document.querySelector('.pagination');
+            container.innerHTML = '';
+            for (let i = 1; i <= pagination.pages; i++) {
+                const btn = document.createElement('div');
+                btn.className = `page-btn ${i === pagination.page ? 'active' : ''}`;
+                btn.textContent = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    fetchProducts();
+                };
+                container.appendChild(btn);
+            }
         }
 
-        function quickView(productId) {
-            const product = productsData.find(p => p.id === productId);
-            alert(`Quick View: ${product.name}\nPrice: $${product.currentPrice}\nRating: ${product.rating}/5`);
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             const dropdown = document.getElementById('sortOptions');
             const sortBtn = document.querySelector('.sort-btn');
-            
             if (!dropdown.contains(event.target) && !sortBtn.contains(event.target)) {
                 dropdown.classList.remove('show');
             }
         });
 
-        // Allow Enter key for search
-        document.getElementById('searchInput').addEventListener('keypress', function(event) {
+        document.getElementById('searchInput').addEventListener('keypress', function (event) {
             if (event.key === 'Enter') {
                 searchProducts();
             }
         });
 
-        // Initialize page
-        renderProducts(currentProducts);
+        fetchProducts();
     </script>
+
 </body>
+
 </html>
