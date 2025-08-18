@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
-from app.repository.product_repository import get_active_products_with_query, save_product_image, get_product_by_id, create_product
-from app.service.minio_service import get_upload_url, get_presigned_url
+from app.repository.product_repository import get_active_products_with_query, get_product_by_id, create_product
+from app.service.minio_service import get_upload_url, get_presigned_url, move_object
 from app.config.env_config import env
 from app.schema.product_schema import ProductCreateRequest, ProductImageResponse, ProductQueryParams
+from app.util.hash import generate_object_key
 
 def list_active_products_with_query(db: Session, params: ProductQueryParams):
     products, total =  get_active_products_with_query(db, params)
@@ -15,7 +16,7 @@ def list_active_products_with_query(db: Session, params: ProductQueryParams):
             "name": product.name,
             "description": product.description,
             "images": [
-                ProductImageResponse(id=img.id, path=get_presigned_url(img.bucket_name, img.object_key))
+                ProductImageResponse(id=img.id, path=get_presigned_url(env.BUCKET_PRODUCT, img.path))
                 for img in product.images
             ]
         }
@@ -32,21 +33,18 @@ def list_active_products_with_query(db: Session, params: ProductQueryParams):
         }
     }
 
-def add_product(db, product_data: ProductCreateRequest):
-    return create_product(db, product_data)
+def add_product_and_move_tmp(db, product_data: ProductCreateRequest):
+    new_product = create_product(db, product_data)
+    for img in product_data.images:
+        move_object(env.BUCKET_TMP, env.BUCKET_PRODUCT, img.path, img.path)
+    return new_product
 
-def generate_product_upload_url(db: Session, product_id: int, filename: str):
-    product = get_product_by_id(db, product_id)
-    if not product:
-        raise ValueError("Product not found")
+def generate_product_upload_url_to_tmp(filename: str):
 
-    object_path = f"{product_id}/{filename}"
+    object_path = generate_object_key(filename)
 
-    url = get_upload_url(env.BUCKET_PRODUCT, object_path)
+    url = get_upload_url(env.BUCKET_TMP, object_path)
     return url, object_path
-
-def save_uploaded_image(db: Session, product_id: int, bucket_name: str, object_key:str):
-    return save_product_image(db, product_id, bucket_name, object_key)
 
 def get_product_detail(db: Session, product_id: int):
     product = get_product_by_id(db, product_id)
@@ -60,7 +58,7 @@ def get_product_detail(db: Session, product_id: int):
         "name": product.name,
         "description": product.description,
         "images": [
-            ProductImageResponse(id=img.id, path=get_presigned_url(img.bucket_name, img.object_key))
+            ProductImageResponse(id=img.id, path=get_presigned_url(env.BUCKET_PRODUCT, img.path))
             for img in product.images
         ],
     }

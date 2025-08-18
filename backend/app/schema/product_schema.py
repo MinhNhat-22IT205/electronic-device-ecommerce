@@ -83,6 +83,7 @@ class ProductCreateRequest(BaseModel):
     width: Optional[float]
     height: Optional[float]
     thick: Optional[float]
+    images: List[ProductImageResponse]
 
     class Config:
         orm_mode = True
@@ -104,6 +105,7 @@ class ProductCreateResponse(BaseModel):
     width: Optional[float]
     height: Optional[float]
     thick: Optional[float]
+    images: List[ProductImageResponse]
 
     class Config:
         orm_mode = True

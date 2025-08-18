@@ -26,21 +26,17 @@ def get_active_products_with_query(db: Session, params: ProductQueryParams):
 def get_product_by_id(db: Session, product_id: int):
     return db.query(Product).filter(Product.id == product_id).first()
 
-def save_product_image(db: Session, product_id: int, bucket_name: str, object_key: str):
-    product_image = ProductImage(product_id=product_id, bucket_name= bucket_name, object_key=object_key)
-    db.add(product_image)
-    db.commit()
-    db.refresh(product_image)
-    return product_image
-
 def create_product(db: Session, product_data: ProductCreateRequest):
+    data = product_data.model_dump(exclude={"images"})
+
     product = Product(
-        **product_data.__dict__,
+        **data,
         is_activated=True,
+        images=[ProductImage(path=img.path) for img in product_data.images]
     )
+
     db.add(product)
     db.commit()
-    db.refresh(product)
+    db.refresh(product)  # product.images will now be loaded
 
-    db.commit()
     return product

@@ -28,6 +28,7 @@ class Product(Base):
     updated_at = Column(DateTime)
     deleted_at = Column(DateTime)
 
-    images = relationship("ProductImage", back_populates="product")
+    images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan")
+
 
 

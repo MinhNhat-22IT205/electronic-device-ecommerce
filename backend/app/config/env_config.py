@@ -19,6 +19,7 @@ class Config(BaseSettings):
     MINIO_ROOT_USER: str
     MINIO_ROOT_PASSWORD: str
     BUCKET_PRODUCT: str
+    BUCKET_TMP: str
 
     class Config:
         env_file = ".env"

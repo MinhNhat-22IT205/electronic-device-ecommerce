@@ -5,6 +5,7 @@ from app.model.user import User
 from app.model.product import Product
 from app.model.product_image import ProductImage
 from app.util.security import hash_password
+from app.util.hash import generate_object_key
 from minio import Minio
 from minio.error import S3Error
 import os
@@ -100,17 +101,16 @@ def seed_products_with_images():
         for i in range(1, 3):  # Two sample images
             local_image_path = os.path.join(sample_dir, f"dummy{i}.jpg")
             if os.path.exists(local_image_path):
-                object_path = f"{product.id}/p_image{i}.jpg"  # object inside bucket
+                object_path =  generate_object_key(f"p_image{i}.jpg")  # object inside bucket
                 # Upload to MinIO
                 minio_client.fput_object(env.BUCKET_PRODUCT, object_path, local_image_path)
                 print(f"✅ Uploaded {object_path} to {env.BUCKET_PRODUCT}")
 
                 # Save image path in DB (bucket/object)
-                if not db.query(ProductImage).filter(ProductImage.object_key == f"{object_path}").first():
+                if not db.query(ProductImage).filter(ProductImage.path == f"{object_path}").first():
                     db.add(ProductImage(
                         product_id=product.id,
-                        object_key=f"{object_path}",
-                        bucket_name=env.BUCKET_PRODUCT
+                        path=object_path
                     ))
     db.commit()
     print("✅ Product images seeded")

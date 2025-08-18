@@ -284,7 +284,38 @@
             const token = localStorage.getItem("access_token");
 
             try {
-                // Step 1: Collect form data
+                 let uploadedImages = [];
+
+                // Step 01: Upload each selected image to MinIO
+                console.log(selectedImages.length, selectedImages)
+                if (selectedImages.length==0){
+                    alert("No image found!");
+                    window.location.href = "AdminProductDashboard.html"; 
+                    return
+                }
+                for (let file of selectedImages) {
+                    // 3.1 Get presigned upload URL
+                    const uploadUrlRes = await fetch(`http://localhost:8000/api/products/get-upload-url?filename=${encodeURIComponent(file.name)}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                    });
+                    if (!uploadUrlRes.ok) throw new Error("Failed to get upload URL");
+                    const { upload_url, object_path } = await uploadUrlRes.json();
+                    console.log(upload_url)
+                    // 3.2 Upload file to MinIO
+                    const uploadRes = await fetch(upload_url, {
+                        method: 'PUT',
+                        body: file.file
+                    });
+                    if (!uploadRes.ok) throw new Error(`Upload failed for ${file.name}`);
+
+                    uploadedImages.push({ path: object_path });
+
+                    console.log(`📤 Uploaded ${file.name} to MinIO`);
+                }
+                // Step 2: Upload Product with image paths
                 const payload = {
                     name: document.getElementById('productName').value,
                     description: document.getElementById('productDescription').value,
@@ -300,7 +331,8 @@
                     thick: parseFloat(document.getElementById('thick').value),
                     weight: parseFloat(document.getElementById('weight').value),
                     width: parseFloat(document.getElementById('width').value),
-                    height: parseFloat(document.getElementById('height').value)
+                    height: parseFloat(document.getElementById('height').value),
+                    images: uploadedImages
                 };
 
                 const createRes = await fetch(`http://localhost:8000/api/products/`, {
@@ -312,49 +344,7 @@
                 if (!createRes.ok) throw new Error("Failed to create product");
 
                 const newProduct = await createRes.json();
-                const productId = newProduct.id;
-
                 console.log("✅ Product created:", newProduct);
-
-                // Step 3: Upload each selected image to MinIO
-                console.log(selectedImages.length, selectedImages)
-                if (selectedImages.length==0){
-                    alert("🎉 Product added successfully (without image)!");
-                    window.location.href = "AdminProductDashboard.html"; 
-                    return
-                }
-                for (let file of selectedImages) {
-                    // 3.1 Get presigned upload URL
-                    const uploadUrlRes = await fetch(`http://localhost:8000/api/products/${productId}/get-upload-url?filename=${encodeURIComponent(file.name)}`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        },
-                    });
-                    if (!uploadUrlRes.ok) throw new Error("Failed to get upload URL");
-                    const { upload_url, object_path } = await uploadUrlRes.json();
-                    console.log(upload_url)
-                    // 3.2 Upload file to MinIO
-                    const uploadRes = await fetch(upload_url, {
-                        method: 'PUT',
-                        body: file.file
-                    });
-                    console.log("asd",uploadRes)
-                    if (!uploadRes.ok) throw new Error(`Upload failed for ${file.name}`);
-
-                    console.log(`📤 Uploaded ${file.name} to MinIO`);
-
-                    // 3.3 Save image path to DB
-                    const saveRes = await fetch(`http://localhost:8000/api/products/${productId}/save-image?object_path=${encodeURIComponent(object_path)}`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        },
-                    });
-                    if (!saveRes.ok) throw new Error(`Failed to save image ${file.name} to DB`);
-
-                    console.log(`💾 Saved ${file.name} to DB`);
-                }
 
                 alert("🎉 Product added successfully!");
                 window.location.href = "AdminProductDashboard.html"; // redirect to product list

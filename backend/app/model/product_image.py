@@ -6,8 +6,7 @@ class ProductImage(Base):
     __tablename__ = "product_image"
 
     id = Column("product_image_id", BigInteger, primary_key=True)
-    bucket_name = Column("product_image_bucket_name", String(255))
-    object_key = Column("product_image_object_key", String(255))
+    path = Column("product_image_path", String(255))
 
     product_id = Column(BigInteger, ForeignKey("product.product_id"))
 
