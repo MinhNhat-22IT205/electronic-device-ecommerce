@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Exclusive</title>
+    <link rel="stylesheet" href="cart.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">Exclusive</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" class="active">Home</a></li>
+                    <li><a href="#" onclick="goToProduct()">Shop</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="nav-right">
+                <div class="search-box">
+                    <input type="text" placeholder="What are you looking for?">
+                    <button>🔍</button>
+                </div>
+                <div class="cart-icon">
+                    🛒
+                    <span class="cart-count" id="cartCount">2</span>
+                </div>
+                <div class="user-icon">A</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1 class="page-title">Shopping Cart</h1>
+
+        <!-- Cart Content -->
+        <div id="cartContent">
+            <div class="cart-table">
+                <div class="cart-header">
+                    <div>Product</div>
+                    <div>Price</div>
+                    <div>Quantity</div>
+                    <div>Subtotal</div>
+                </div>
+                
+                <!-- <div class="cart-item" data-product="lcd-monitor">
+                    <div class="product-info">
+                        <div class="product-image">📺</div>
+                        <div>
+                            <div class="product-name">LCD Monitor</div>
+                            <button class="remove-btn" onclick="removeFromCart('lcd-monitor')">Remove</button>
+                        </div>
+                    </div>
+                    <div class="price">$650</div>
+                    <div class="quantity-control">
+                        <button class="quantity-btn" onclick="updateQuantity('lcd-monitor', -1)">−</button>
+                        <input type="number" class="quantity-input" value="1" min="0" 
+                               onchange="setQuantity('lcd-monitor', this.value)">
+                        <button class="quantity-btn" onclick="updateQuantity('lcd-monitor', 1)">+</button>
+                    </div>
+                    <div class="price subtotal">$650</div>
+                </div>
+
+                <div class="cart-item" data-product="h1-gamepad">
+                    <div class="product-info">
+                        <div class="product-image">🎮</div>
+                        <div>
+                            <div class="product-name">H1 Gamepad</div>
+                            <button class="remove-btn" onclick="removeFromCart('h1-gamepad')">Remove</button>
+                        </div>
+                    </div>
+                    <div class="price">$550</div>
+                    <div class="quantity-control">
+                        <button class="quantity-btn" onclick="updateQuantity('h1-gamepad', -1)">−</button>
+                        <input type="number" class="quantity-input" value="2" min="0"
+                               onchange="setQuantity('h1-gamepad', this.value)">
+                        <button class="quantity-btn" onclick="updateQuantity('h1-gamepad', 1)">+</button>
+                    </div>
+                    <div class="price subtotal">$1100</div>
+                </div> -->
+            </div>
+
+            <div class="cart-actions">
+                <button class="return-shop-btn" onclick="goToProduct()">Return To Shop</button>
+                <button class="update-cart-btn" onclick="updateCartDisplay()">Update Cart</button>
+            </div>
+
+            <div class="cart-summary">
+                <div class="cart-total">
+                    <h3>Cart Total</h3>
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$1750</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Shipping:</span>
+                        <span>Free</span>
+                    </div>
+                    <div class="total-row final">
+                        <span>Total:</span>
+                        <span id="total">$1750</span>
+                    </div>
+                    <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to checkout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty Cart Message -->
+        <div class="empty-cart" id="emptyCart">
+            <h2>Your cart is empty</h2>
+            <p>Add some items to your cart to continue shopping.</p>
+            <button class="return-shop-btn" onclick="goToProduct()" style="margin-top: 1rem;">Continue Shopping</button>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem("access_token");
+
+        async function loadCart() {
+            try {
+                const res = await fetch("http://localhost:8000/api/cart", {
+                    method: "GET",
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error("Failed to load cart");
+                const cart = await res.json();
+
+                renderCart(cart.items);
+            } catch (err) {
+                console.error(err);
+                document.getElementById("cartContent").style.display = "none";
+                document.getElementById("emptyCart").classList.add("show");
+            }
+        }
+
+        function renderCart(items) {
+            const cartContainer = document.querySelector(".cart-table");
+            cartContainer.innerHTML = `
+                <div class="cart-header">
+                    <div>Product</div>
+                    <div>Price</div>
+                    <div>Quantity</div>
+                    <div>Subtotal</div>
+                </div>
+            `;
+
+            let subtotal = 0;
+            let totalQty = 0;
+            let deletedItems = [];
+
+            items.forEach(item => {
+                const itemSubtotal = item.total_price;
+                subtotal += itemSubtotal;
+                totalQty += item.quantity;
+
+                if (item.product && item.product.is_deleted) {
+                    deletedItems.push(item.product.name);
+                    removeFromCart(item.id); 
+                    return; // Skip rendering this item
+                }
+
+                cartContainer.innerHTML += `
+                    <div class="cart-item" data-id="${item.id}">
+                        <div class="product-info">
+                            <div class="product-image">
+                                <img class="product-image" src='${item.product.images[0].path}'>
+                            </div>
+                            <div>
+                                <div class="product-name">${item.product.name}</div>
+                                <button class="remove-btn" onclick="removeFromCart(${item.id})">Remove</button>
+                            </div>
+                        </div>
+                        <div class="price">$${item.product_price}</div>
+                        <div class="quantity-control">
+                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">−</button>
+                            <input type="number" class="quantity-input" value="${item.quantity}" min="1" 
+                                onchange="setQuantity(${item.id}, this.value)">
+                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                        </div>
+                        <div class="price subtotal">$${itemSubtotal}</div>
+                    </div>
+                `;
+            });
+            
+
+            document.getElementById("subtotal").textContent = `$${subtotal}`;
+            document.getElementById("total").textContent = `$${subtotal}`;
+            document.getElementById("cartCount").textContent = totalQty;
+
+            // Alert user about deleted items
+            if (deletedItems.length > 0) {
+                const itemList = deletedItems.join(', ');
+                const message = deletedItems.length === 1 
+                    ? `The item "${itemList}" is no longer available and has been removed from your cart.`
+                    : `The following items are no longer available and have been removed from your cart: ${itemList}`;
+                
+                alert(message);
+                
+            }
+        }
+
+        async function updateQuantity(itemId, change) {
+            const input = document.querySelector(`.cart-item[data-id="${itemId}"] .quantity-input`);
+            let newQty = Math.max(1, parseInt(input.value) + change);
+            await setQuantity(itemId, newQty);
+        }
+
+        async function setQuantity(itemId, quantity) {
+            try {
+                const res = await fetch(`http://localhost:8000/api/cart/items/${itemId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ quantity })
+                });
+                if (!res.ok) throw new Error("Failed to update quantity");
+                loadCart();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function removeFromCart(itemId) {
+            try {
+                const res = await fetch(`http://localhost:8000/api/cart/items/${itemId}`, {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error("Failed to remove item");
+                loadCart();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function proceedToCheckout() {
+            alert("Proceeding to checkout...");
+        }
+
+        document.addEventListener("DOMContentLoaded", loadCart);
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.db.db_connect import Base, engine
-from app.controller import auth_controller, product_controller  #  import routers
+from app.controller import auth_controller, product_controller, cart_controller  #  import routers
 from fastapi.middleware.cors import CORSMiddleware
 
 Base.metadata.create_all(bind=engine)
@@ -18,3 +18,4 @@ app.add_middleware(
 #  Register routers
 app.include_router(auth_controller.router, prefix="/api")
 app.include_router(product_controller.router, prefix="/api")
+app.include_router(cart_controller.router, prefix="/api")

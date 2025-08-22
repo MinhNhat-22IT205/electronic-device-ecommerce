@@ -38,6 +38,8 @@ class ProductResponse(BaseModel):
     is_activated: bool
     is_deleted: Optional[bool]
     images: List[ProductImageResponse]
+    is_activated = Optional[float]
+    is_deleted = Optional[float]
 
     class Config:
         orm_mode = True
@@ -88,24 +90,29 @@ class ProductCreateRequest(BaseModel):
     class Config:
         orm_mode = True
 
-class ProductCreateResponse(BaseModel):
-    id: int
-    name: str
-    sku: str
-    description: Optional[str]
-    camera: Optional[str]
-    cpu: Optional[str]
-    ram: Optional[int]
-    rom: Optional[int]
-    pin: Optional[int]
-    cost_price: float
-    sale_price: float
-    quantity: int
-    weight: Optional[float]
-    width: Optional[float]
-    height: Optional[float]
-    thick: Optional[float]
-    images: List[ProductImageResponse]
+class ProductCreateResponse(ProductResponse):
+    pass
+
+class ProductPatchRequest(BaseModel):
+    name: Optional[str] = None
+    sku: Optional[str] = None
+    description: Optional[str] = None
+    camera: Optional[str] = None
+    cpu: Optional[str] = None
+    ram: Optional[int] = None
+    rom: Optional[int] = None
+    pin: Optional[int] = None
+    cost_price: Optional[float] = None
+    sale_price: Optional[float] = None
+    quantity: Optional[int] = None
+    weight: Optional[float] = None
+    width: Optional[float] = None
+    height: Optional[float] = None
+    thick: Optional[float] = None
+    images: Optional[List[ProductImageResponse]] = None
 
     class Config:
         orm_mode = True
+
+class ProductPatchResponse(ProductResponse):
+    pass

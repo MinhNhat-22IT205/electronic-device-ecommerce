@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Edit Product</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            padding: 0 20px 30px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-menu li {
+            margin: 5px 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: #f0f8ff;
+            color: #0066cc;
+        }
+
+        .icon {
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .categories-section {
+            padding: 0 20px;
+        }
+
+        .categories-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .category-count {
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .breadcrumb {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .admin-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-icon {
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .admin-btn {
+            background: none;
+            border: none;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 12px;
+        }
+
+        /* Product Section */
+        .product-section {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+
+        .product-display {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .product-header {
+            display: flex;
+            gap: 30px;
+        }
+
+        .product-image-section {
+            flex: 1;
+        }
+
+        .main-product-image {
+            width: 100%;
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .main-product-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .controller-display {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .thumbnail-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .thumbnail {
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .thumbnail.active {
+            border-color: #0066cc;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .delete-thumb-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .thumbnail:hover .delete-thumb-btn {
+            opacity: 1;
+        }
+
+        .delete-thumb-btn:hover {
+            background: #c82333;
+        }
+
+        .nav-arrow {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stars {
+            color: #ffc107;
+            font-size: 16px;
+        }
+
+        .rating-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .stock-badge {
+            background: #e8f5e8;
+            color: #28a745;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .product-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        .product-description {
+            color: #666;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* Edit Form */
+        .edit-form {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .form-tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #0066cc;
+            color: white;
+        }
+
+        form {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .image-upload {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .image-upload:hover {
+            border-color: #0066cc;
+            background: #f8f9ff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #666;
+        }
+
+        .btn-cancel:hover {
+            background: #e9ecef;
+        }
+
+        .btn-update {
+            background: #0066cc;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">Exclusive</div>
+            <ul class="sidebar-menu">
+                <li><a href="#"><span class="icon">📊</span> DASHBOARD</a></li>
+                <li><a href="#"><span class="icon">📦</span> ALL PRODUCTS</a></li>
+                <li><a href="#" class="active"><span class="icon">📋</span> ORDER LIST</a></li>
+            </ul>
+            
+            <div class="categories-section">
+                <div class="categories-title">Categories</div>
+                <div class="category-item">
+                    <span>Samsung</span>
+                    <span class="category-count">21</span>
+                </div>
+                <div class="category-item">
+                    <span>Iphone</span>
+                    <span class="category-count">32</span>
+                </div>
+                <div class="category-item">
+                    <span>MacBook</span>
+                    <span class="category-count">13</span>
+                </div>
+                <div class="category-item">
+                    <span>Mi Notebook</span>
+                    <span class="category-count">14</span>
+                </div>
+                <div class="category-item">
+                    <span>MatePad</span>
+                    <span class="category-count">06</span>
+                </div>
+                <div class="category-item">
+                    <span>GalaxyBook</span>
+                    <span class="category-count">11</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="breadcrumb">
+                    <a href="#">Home</a> > <a href="#">All Products</a> > Reviews
+                </div>
+                <div class="admin-controls">
+                    <span class="search-icon">🔍</span>
+                    <div class="admin-dropdown">
+                        <button class="admin-btn">
+                            ADMIN <span>▼</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-section">
+                <!-- Product Display -->
+                <div class="product-display">
+                    <div class="product-header">
+                        <div class="product-image-section">
+                            <div class="main-product-image">
+                                <div class="controller-display">No image available</div>
+                            </div>
+                            <div class="thumbnail-nav">
+                                <button class="nav-arrow">‹</button>
+                                <div class="thumbnail active"></div>
+                                <div class="thumbnail"></div>
+                                <button class="nav-arrow">›</button>
+                            </div>
+                        </div>
+
+                        <div class="product-info">
+                            <h1 class="product-title">Havic HV G-92 Gamepad</h1>
+                            <div class="product-rating">
+                                <div class="stars">★★★★★</div>
+                                <span class="rating-text">(150 Reviews)</span>
+                                <span class="stock-badge">In Stock (<span id="display-stock">0</span>)</span>
+                            </div>
+                            <div class="product-price">$<span id="display-price">192.00</span></div>
+                            <p class="product-description" id="display-description">
+                                PlayStation 5 Controller Skin High quality vinyl with air channel adhesive for easy bubble free install & mess free removal Pressure sensitive.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Form -->
+                <div class="edit-form">
+                    <div class="form-tabs">
+                        <button class="tab-btn active">Information</button>
+                        <button class="tab-btn">Reviews</button>
+                    </div>
+
+                    <form>
+                        <div class="form-group">
+                            <label class="form-label">Product Name</label>
+                            <input id="product-name" type="text" class="form-input" placeholder="Type Name Here" value="Havic HV G-92 Gamepad">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea id="product-description" class="form-textarea" placeholder="Type Description Here">PlayStation 5 Controller Skin High quality vinyl with air channel adhesive for easy bubble free install & mess free removal Pressure sensitive.</textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Camera</label>
+                                <input id="product-camera" type="text" class="form-input" placeholder="e.g., 48MP + 12MP" value="48MP + 12MP">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CPU</label>
+                                <input id="product-cpu" type="text" class="form-input" placeholder="e.g., Snapdragon 888" value="Snapdragon 888">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">RAM (GB)</label>
+                                <input id="product-ram" type="text" class="form-input" placeholder="8" value="8">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">ROM (GB)</label>
+                                <input id="product-rom" type="text" class="form-input" placeholder="128" value="128">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Battery (mAh)</label>
+                            <input id="product-pin" type="text" class="form-input" placeholder="4000" value="12312">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Thickness</label>
+                                <input id="product-thick" type="text" class="form-input" placeholder="7.6mm" value="4444">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Weight (g)</label>
+                                <input id="product-weight" type="text" class="form-input" placeholder="180" value="123">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Width (mm)</label>
+                                <input id="product-width" type="text" class="form-input" placeholder="75.2" value="34">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Height (mm)</label>
+                                <input id="product-height" type="text" class="form-input" placeholder="160.8" value="34">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">SKU</label>
+                                <input id="product-sku" type="text" class="form-input" value="#32A5B">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Stock Quantity</label>
+                                <input id="product-quantity" type="number" class="form-input" value="23">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Regular Price</label>
+                                <input id="product-cost-price" type="text" class="form-input" value="192">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sale Price</label>
+                                <input id="product-sale-price" type="text" class="form-input" value="1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Product Gallery</label>
+                            <div class="image-upload" id="image-upload">
+                                <span class="upload-icon">🖼️</span>
+                                <p>Drop your images here, or browse<br>
+                                <small>jpeg, png are allowed</small></p>
+                                <input type="file" id="file-input" accept="image/*" multiple style="display: none;">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-cancel">CANCEL</button>
+                            <button type="button" class="btn btn-delete" onclick="deleteProduct()" style="background: #dc3545; color: white; margin-right: 10px;">DELETE</button>
+                            <button type="button" class="btn btn-update">UPDATE</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for product data
+        let currentImages = [];
+        let currentImageIndex = 0;
+        let selectedImages = []; // For new image uploads
+        let oldImagePaths = []
+        let token = localStorage.getItem('access_token');
+
+        // Initialize with sample data
+        function initializeData() {
+            // Set sample image
+            currentImages = [
+                'https://via.placeholder.com/400x300/f8f9fa/666?text=Game+Controller',
+                'https://via.placeholder.com/400x300/e9ecef/666?text=Controller+Side',
+                'https://via.placeholder.com/400x300/dee2e6/666?text=Controller+Back'
+            ];
+            updateImageDisplay();
+            updateProductDisplay();
+        }
+
+        // Update image display
+        function updateImageDisplay() {
+            const mainImage = document.querySelector('.controller-display');
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            
+            if (currentImages.length > 0) {
+                mainImage.innerHTML = `<img src="${currentImages[currentImageIndex]}" alt="Product Image">`;
+                
+                // Update thumbnails with delete buttons
+                thumbnails.forEach((thumb, index) => {
+                    if (currentImages[index]) {
+                        thumb.innerHTML = `
+                            <img src="${currentImages[index]}" alt="Thumbnail ${index + 1}">
+                            <button class="delete-thumb-btn" onclick="deleteImage(${index})" title="Delete Image">×</button>
+                        `;
+                        thumb.style.display = 'block';
+                    } else {
+                        thumb.innerHTML = '';
+                        thumb.style.display = 'none';
+                    }
+                });
+            } else {
+                mainImage.innerHTML = '<div style="color: #999;">No image available</div>';
+                thumbnails.forEach(thumb => {
+                    thumb.innerHTML = '';
+                    thumb.style.display = 'block';
+                });
+            }
+        }
+
+        // Update product display with form data
+        function updateProductDisplay() {
+            const name = document.getElementById('product-name').value;
+            const description = document.getElementById('product-description').value;
+            const price = document.getElementById('product-sale-price').value || document.getElementById('product-cost-price').value;
+            const quantity = document.getElementById('product-quantity').value;
+
+            document.querySelector('.product-title').textContent = name || 'Product Name';
+            document.getElementById('display-description').textContent = description || 'No description available';
+            document.getElementById('display-price').textContent = price || '0.00';
+            document.getElementById('display-stock').textContent = quantity || '0';
+        }
+
+        // Form input listeners
+        function setupFormListeners() {
+            const inputs = document.querySelectorAll('.form-input, .form-textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', updateProductDisplay);
+            });
+        }
+
+        // Image upload functionality
+        function setupImageUpload() {
+            const uploadArea = document.getElementById('image-upload');
+            const fileInput = document.getElementById('file-input');
+
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#0066cc';
+                uploadArea.style.backgroundColor = '#f8f9ff';
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#ddd';
+                uploadArea.style.backgroundColor = '';
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#ddd';
+                uploadArea.style.backgroundColor = '';
+                
+                const files = Array.from(e.dataTransfer.files);
+                handleFiles(files);
+            });
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            
+            imageFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // Add to selectedImages for upload
+                    selectedImages.push({
+                        file: file,
+                        name: file.name,
+                        preview: e.target.result
+                    });
+                    
+                    // Add preview to currentImages for display
+                    currentImages.push(e.target.result);
+                    updateImageDisplay();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Delete image function
+        function deleteImage(index) {
+            if (confirm('Are you sure you want to delete this image?')) {
+                // Remove from current images
+                currentImages.splice(index, 1);
+                oldImagePaths.splice(index, 1)
+                
+                // Remove from selected images if it exists
+                if (selectedImages[index]) {
+                    selectedImages.splice(index, 1);
+                }
+                
+                // Adjust current index if needed
+                if (currentImageIndex >= currentImages.length && currentImages.length > 0) {
+                    currentImageIndex = currentImages.length - 1;
+                } else if (currentImages.length === 0) {
+                    currentImageIndex = 0;
+                }
+                
+                updateImageDisplay();
+                updateActiveThumbnail();
+            }
+        }
+
+        // Thumbnail navigation
+        function setupThumbnailNavigation() {
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            const prevBtn = document.querySelector('.nav-arrow:first-child');
+            const nextBtn = document.querySelector('.nav-arrow:last-child');
+
+            thumbnails.forEach((thumb, index) => {
+                thumb.addEventListener('click', () => {
+                    currentImageIndex = index;
+                    thumbnails.forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                    updateImageDisplay();
+                });
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentImages.length > 0) {
+                    currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : currentImages.length - 1;
+                    updateImageDisplay();
+                    updateActiveThumbnail();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentImages.length > 0) {
+                    currentImageIndex = currentImageIndex < currentImages.length - 1 ? currentImageIndex + 1 : 0;
+                    updateImageDisplay();
+                    updateActiveThumbnail();
+                }
+            });
+        }
+
+        function updateActiveThumbnail() {
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            thumbnails.forEach((thumb, index) => {
+                thumb.classList.toggle('active', index === currentImageIndex);
+            });
+        }
+
+        // Tab switching
+        function setupTabs() {
+            document.querySelectorAll('.tab-btn').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        // Form actions
+        function setupFormActions() {
+            document.querySelector('.btn-update').addEventListener('click', async function() {
+                await updateProduct();
+            });
+
+            document.querySelector('.btn-cancel').addEventListener('click', function() {
+                if (confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
+                    window.history.back();
+                }
+            });
+        }
+
+        // Update product via API
+        async function updateProduct() {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get("id");
+
+            if (!productId) {
+                alert('⚠️ No product ID found');
+                return;
+            }
+
+            try {
+                let uploadedImages = [];
+                // Step 01: Upload each selected image to MinIO
+                console.log(selectedImages.length, selectedImages)
+                if (selectedImages.length == 0) {
+                } else {
+                    for (let file of selectedImages) {
+                        // 3.1 Get presigned upload URL
+                        const uploadUrlRes = await fetch(`http://localhost:8000/api/products/get-upload-url?filename=${encodeURIComponent(file.name)}`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            },
+                        });
+                        if (!uploadUrlRes.ok) throw new Error("Failed to get upload URL");
+                        const { upload_url, object_path } = await uploadUrlRes.json();
+                        console.log(upload_url)
+                        
+                        // 3.2 Upload file to MinIO
+                        const uploadRes = await fetch(upload_url, {
+                            method: 'PUT',
+                            body: file.file
+                        });
+                        if (!uploadRes.ok) throw new Error(`Upload failed for ${file.name}`);
+
+                        uploadedImages.push({ path: object_path });
+
+                        console.log(`📤 Uploaded ${file.name} to MinIO`);
+                    }
+                }
+                oldImagePaths.forEach(path => {uploadedImages.push({path:path})})   
+                console.log(uploadedImages)             
+
+                // Gather form data
+                const productData = {
+                    name: document.getElementById("product-name").value,
+                    sku: document.getElementById("product-sku").value,
+                    description: document.getElementById("product-description").value,
+                    camera: document.getElementById("product-camera").value,
+                    cpu: document.getElementById("product-cpu").value,
+                    ram: parseInt(document.getElementById("product-ram").value) || null,
+                    rom: parseInt(document.getElementById("product-rom").value) || null,
+                    pin: parseInt(document.getElementById("product-pin").value) || null,
+                    cost_price: parseFloat(document.getElementById("product-cost-price").value),
+                    sale_price: parseFloat(document.getElementById("product-sale-price").value),
+                    quantity: parseInt(document.getElementById("product-quantity").value),
+                    weight: parseFloat(document.getElementById("product-weight").value) || null,
+                    width: parseFloat(document.getElementById("product-width").value) || null,
+                    height: parseFloat(document.getElementById("product-height").value) || null,
+                    thick: parseFloat(document.getElementById("product-thick").value) || null,
+                    images: uploadedImages
+                };
+
+                // Validate required fields
+                if (!productData.name || !productData.sku || isNaN(productData.cost_price) || isNaN(productData.sale_price) || isNaN(productData.quantity)) {
+                    alert('⚠️ Please fill in all required fields (Name, SKU, Cost Price, Sale Price, Quantity)');
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:8000/api/products/${productId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to update product');
+                }
+
+                const updatedProduct = await response.json();
+                alert('✅ Product updated successfully!');
+ 
+
+                window.location.reload();
+
+            } catch (error) {
+                console.error('Update error:', error);
+                alert(`❌ Failed to update product: ${error.message}`);
+            }
+        }
+
+                // Delete product via API
+        async function deleteProduct() {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get("id");
+
+            if (!productId) {
+                alert('⚠️ No product ID found');
+                return;
+            }
+
+            if (!confirm('⚠️ Are you sure you want to delete this product? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8000/api/products/${productId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to delete product');
+                }
+
+                alert('✅ Product deleted successfully!');
+                // Redirect to products list
+                window.location.href = 'AdminProductDashboard.html'; // Adjust URL as needed
+
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert(`❌ Failed to delete product: ${error.message}`);
+            }
+        }
+
+        // API integration (if needed)
+        async function loadProductDetail() {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get("id");
+
+            if (!productId) {
+                initializeData();
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://localhost:8000/api/products/${productId}`);
+                if (!res.ok) {
+                    throw new Error("Product not found");
+                }
+                const product = await res.json();
+
+                // Fill form fields
+                document.getElementById("product-name").value = product.name || "";
+                document.getElementById("product-description").value = product.description || "";
+                document.getElementById("product-camera").value = product.camera || "";
+                document.getElementById("product-cpu").value = product.cpu || "";
+                document.getElementById("product-ram").value = product.ram || "";
+                document.getElementById("product-rom").value = product.rom || "";
+                document.getElementById("product-pin").value = product.pin || "";
+                document.getElementById("product-thick").value = product.thick || "";
+                document.getElementById("product-weight").value = product.weight || "";
+                document.getElementById("product-width").value = product.width || "";
+                document.getElementById("product-height").value = product.height || "";
+                document.getElementById("product-sku").value = product.sku || "";
+                document.getElementById("product-quantity").value = product.quantity || "";
+                document.getElementById("product-cost-price").value = product.cost_price || "";
+                document.getElementById("product-sale-price").value = product.sale_price || "";
+
+                // Load images
+                if (product.images && product.images.length > 0) {
+                    currentImages = product.images.map(img => img.path);
+                    updateImageDisplay();
+                }
+                product.images.forEach(image=> oldImagePaths.push(getFileNameFromUrl(image.path)))
+                console.log(oldImagePaths)
+
+                // Update display
+                updateProductDisplay();
+
+            } catch (err) {
+                console.error(err);
+                alert("⚠️ Product not found. Loading default data.");
+                initializeData();
+            }
+        }
+
+        function getFileNameFromUrl(url) {
+            // Take part before query string
+            let withoutQuery = url.split("?")[0];
+            // Split by slash and take last part
+            return withoutQuery.substring(withoutQuery.lastIndexOf("/") + 1);
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFormListeners();
+            setupImageUpload();
+            setupThumbnailNavigation();
+            setupTabs();
+            setupFormActions();
+            loadProductDetail();
+        });
+    </script>
+</body>
+</html>

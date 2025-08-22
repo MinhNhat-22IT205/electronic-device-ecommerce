@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, UploadFile, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from app.schema.product_schema import ProductResponse, ProductCreateResponse, ProductQueryParams, ProductListResponse, ProductCreateRequest
+from app.schema.product_schema import ProductResponse, ProductCreateResponse, ProductQueryParams, ProductListResponse, ProductCreateRequest, ProductPatchResponse, ProductPatchRequest
 from app.db.db_session import get_db
 from app.util.guard import admin_required
-from app.service.product_service import list_active_products_with_query, generate_product_upload_url_to_tmp, get_product_detail, add_product_and_move_tmp
+from app.service.product_service import list_active_products_with_query, generate_product_upload_url_to_tmp, get_product_detail, add_product_and_move_tmp, patch_product_and_move_tmp, remove_product
 from app.config.env_config import env
 from fastapi import Form
 
@@ -38,3 +38,12 @@ def get_product_by_id_api(product_id: int, db: Session = Depends(get_db)):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
+
+@router.patch("/{product_id}", response_model=ProductPatchResponse)
+def update_product(product_id: int, product_data: ProductPatchRequest,current_user = Depends(admin_required), db: Session = Depends(get_db)):
+    patched_product = patch_product_and_move_tmp(db, product_id, product_data)
+    return patched_product
+
+@router.delete("/{product_id}", response_model=ProductResponse)
+def delete_product(product_id: int, current_user = Depends(admin_required), db: Session = Depends(get_db)):
+    return remove_product(db, product_id)

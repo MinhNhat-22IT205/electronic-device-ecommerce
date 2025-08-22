@@ -22,7 +22,7 @@
                     <input type="text" placeholder="What are you looking for?" id="searchInput">
                     <button onclick="searchProducts()">🔍</button>
                 </div>
-                <div class="cart-icon">
+                <div class="cart-icon"  onclick="window.location.href='Cart.html'">
                     🛒
                     <span class="cart-count" id="cartCount">0</span>
                 </div>
@@ -147,12 +147,12 @@
                 productCard.className = 'product-card';
                 productCard.innerHTML = `
                     <div class="discount-badge">-${product.discount}%</div>
-                    <div class="product-image">
+                    <div class="product-image" >
                         <button class="img-nav prev" onclick="prevImage(${productId})">❮</button>
                         <img id="product-img-${productId}" src="${images[0]}" alt="${product.name}">
                         <button class="img-nav next" onclick="nextImage(${productId})">❯</button>
                     </div>
-                    <div class="product-info">
+                    <div class="product-info" onclick="window.location.href='ProductDetail.html?id=${productId}'">
                         <h3 class="product-name">${product.name}</h3>
                         <div class="product-price">
                             <span class="current-price">$${product.currentPrice}</span>

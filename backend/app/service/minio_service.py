@@ -41,3 +41,10 @@ def move_object(old_bucket: str, new_bucket:str, old_object_key: str, new_object
         CopySource(old_bucket, old_object_key)
     )
     minio_client.remove_object(old_bucket, old_object_key)
+
+def delete_object(bucket_name: str, object_name: str):
+    try:
+        minio_client.remove_object(bucket_name, object_name)
+        print(f"🗑 Deleted {object_name} from {bucket_name}")
+    except Exception as e:
+        print(f"❌ Failed to delete {object_name}: {e}")

@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
-from app.repository.product_repository import get_active_products_with_query, get_product_by_id, create_product
-from app.service.minio_service import get_upload_url, get_presigned_url, move_object
+from app.repository.product_repository import get_active_products_with_query, get_product_by_id, create_product, patch_product, mark_product_as_deleted
+from app.service.minio_service import get_upload_url, get_presigned_url, move_object, delete_object
 from app.config.env_config import env
-from app.schema.product_schema import ProductCreateRequest, ProductImageResponse, ProductQueryParams
+from app.schema.product_schema import ProductCreateRequest, ProductImageResponse, ProductQueryParams, ProductPatchRequest
 from app.util.hash import generate_object_key
 
 def list_active_products_with_query(db: Session, params: ProductQueryParams):
@@ -65,3 +65,34 @@ def get_product_detail(db: Session, product_id: int):
 
     return product_dict
 
+def patch_product_and_move_tmp(db, product_id: int, patch_data: ProductPatchRequest):
+    # get product by id
+    product = get_product_by_id(db, product_id)
+    if not product:
+        return None
+
+    old_image_paths = {img.path for img in product.images}
+
+    # patch product 
+    patched_product = patch_product(db, product, patch_data)
+
+    # find images that were removed (in old but not in new)
+    new_image_paths = {img.path for img in patched_product.images}
+    removed_images = old_image_paths - new_image_paths
+    added_images = new_image_paths - old_image_paths
+
+    # move new images from tmp to product bucket
+    for path in added_images:
+        move_object(env.BUCKET_TMP, env.BUCKET_PRODUCT, path, path)
+
+    # delete removed images from bucket
+    for path in removed_images:
+        delete_object(env.BUCKET_PRODUCT, path)
+
+    return patched_product
+
+
+def remove_product(db: Session, product_id:int):
+    return mark_product_as_deleted(db, product_id)
+    
+    

@@ -140,6 +140,7 @@
 
             products.forEach(product => {
                 const card = document.createElement('div');
+                card.setAttribute("onclick", `window.location.href='AdminProductDetail.html?id=${product.id}'`)
                 card.className = 'product-card';
                 card.innerHTML = `
                     <div class="product-header">
